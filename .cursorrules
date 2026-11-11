@@ -1,0 +1,272 @@
+# Bridge-to-IDE — AI Coding Rules
+# READ THIS ENTIRELY BEFORE WRITING A SINGLE LINE OF CODE.
+# Owner: QudSystem | Version: 1.0.0
+
+---
+
+## 🧠 PROJECT CONTEXT
+
+You are building **Bridge-to-IDE** — an intelligent local bridge that:
+1. Monitors any AI chatbot page in a browser (DeepSeek, Claude, Gemini)
+2. Extracts code blocks the moment they appear
+3. Intelligently parses file paths and terminal commands from context
+4. Writes files to the correct location in the user's IDE project
+5. Executes terminal commands automatically
+
+**Philosophy:** Replace paid APIs with a smart local bridge that mimics human developer behavior.
+
+---
+
+## 🏗️ ARCHITECTURE — NEVER VIOLATE THIS
+
+The system has EXACTLY 3 layers. Do NOT merge them. Do NOT bypass them.
+
+```
+core/sniffer.py   → ONLY browser watching + DOM extraction
+core/parser.py    → ONLY text analysis + path/command extraction  
+core/executor.py  → ONLY file system operations + terminal execution
+```
+
+**main.py** orchestrates them. It does NOT contain business logic.
+
+**Data flows in ONE direction only:**
+```
+Sniffer → Parser → Executor
+```
+
+Never let Executor call Sniffer. Never let Parser touch the file system.
+
+---
+
+## ✅ MANDATORY CODING STANDARDS
+
+### Python Version & Typing
+- Python **3.10+** minimum
+- **ALL** function parameters and return types MUST be type-hinted
+- Use `from __future__ import annotations` at top of every file
+- Use `pathlib.Path` exclusively — NEVER `os.path` string manipulation
+
+### Logging — ZERO print() in Production
+```python
+# ❌ FORBIDDEN
+print("Code found!")
+
+# ✅ CORRECT
+from loguru import logger
+logger.info("Code block detected | url={url} | hash={hash}", url=url, hash=code_hash)
+```
+
+### Error Handling — NO bare except
+```python
+# ❌ FORBIDDEN
+try:
+    do_something()
+except:
+    pass
+
+# ✅ CORRECT
+try:
+    do_something()
+except TimeoutException as e:
+    logger.warning("Timeout waiting for code block | error={e}", e=str(e))
+    raise SnifferTimeoutError("Code block not found within timeout") from e
+```
+
+### File Operations — ALWAYS Atomic
+```python
+# ❌ FORBIDDEN (can corrupt file on crash)
+with open(target_path, "w") as f:
+    f.write(code)
+
+# ✅ CORRECT (atomic write)
+import tempfile, shutil
+with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".tmp") as tmp:
+    tmp.write(code)
+tmp_path = Path(tmp.name)
+shutil.move(str(tmp_path), str(target_path))
+```
+
+### Configuration — NEVER Hardcode
+```python
+# ❌ FORBIDDEN
+url = "https://chat.deepseek.com"
+project_root = "C:/Users/Hossam/Projects"
+
+# ✅ CORRECT — always from config
+from config.loader import get_config
+cfg = get_config()
+url = cfg.chatbot.url
+project_root = cfg.project.root_path
+```
+
+---
+
+## 🛡️ ANTI-BOT RULES — CRITICAL — NON-NEGOTIABLE
+
+Every single browser interaction MUST include human simulation. No exceptions.
+
+### Random Delays
+```python
+import random, asyncio
+
+# ❌ FORBIDDEN
+time.sleep(1)
+
+# ✅ CORRECT
+async def human_delay(min_s: float = 0.5, max_s: float = 3.0) -> None:
+    """Simulate human reaction time with gaussian distribution."""
+    delay = random.gauss((min_s + max_s) / 2, (max_s - min_s) / 4)
+    delay = max(min_s, min(max_s, delay))
+    await asyncio.sleep(delay)
+```
+
+### Mouse Simulation
+```python
+# ❌ FORBIDDEN
+element.click()
+
+# ✅ CORRECT — use ActionChains with bezier path
+from core.human_sim import human_click
+await human_click(driver, element)
+```
+
+### Never Click the Same Element Twice in < 1 Second
+If you need to retry, wait at least `random.uniform(1.0, 2.5)` seconds.
+
+---
+
+## 📁 FILE STRUCTURE — DO NOT DEVIATE
+
+```
+Bridge-to-IDE/
+├── .cursorrules              ← THIS FILE
+├── docs/
+│   ├── PRD.md
+│   ├── ARCHITECTURE.md
+│   └── AGENTS.md
+├── config/
+│   ├── settings.json         ← User config (gitignored in production)
+│   └── loader.py             ← Pydantic config loader
+├── core/
+│   ├── __init__.py
+│   ├── sniffer.py            ← Layer 1: Browser + DOM
+│   ├── parser.py             ← Layer 2: Text + Path extraction
+│   ├── executor.py           ← Layer 3: File system + Terminal
+│   └── human_sim.py          ← Shared: Anti-bot utilities
+├── adapters/
+│   ├── __init__.py
+│   ├── chatbots/
+│   │   ├── deepseek.py       ← DeepSeek-specific selectors
+│   │   ├── claude.py         ← Claude-specific selectors
+│   │   └── gemini.py         ← Gemini-specific selectors
+│   └── ides/
+│       ├── cursor.py         ← Cursor-specific commands
+│       └── vscode.py         ← VS Code-specific commands
+├── models/
+│   ├── __init__.py
+│   └── code_block.py         ← Pydantic models (CodeBlock, ParsedCode, etc.)
+├── tests/
+│   ├── test_sniffer.py
+│   ├── test_parser.py
+│   └── test_executor.py
+├── logs/                     ← Auto-created, gitignored
+├── backups/                  ← Auto-created, gitignored
+├── main.py                   ← Entry point ONLY — no business logic here
+├── requirements.txt
+└── README.md
+```
+
+---
+
+## 🔒 FORBIDDEN PATTERNS — INSTANT REJECTION
+
+1. **Hardcoded URLs, paths, or selectors** anywhere except `adapters/`
+2. **`print()` statements** in production code — use `loguru`
+3. **Bare `except:`** clauses — always catch specific exceptions
+4. **Direct file writes** without atomic pattern
+5. **Synchronous `time.sleep()`** in async context — use `asyncio.sleep()`
+6. **Merging layer responsibilities** — Parser NEVER touches browser, Executor NEVER parses text
+7. **Magic numbers** — all constants in `config/settings.json` or named constants
+8. **No type hints** — every function parameter and return value must be typed
+
+---
+
+## 📦 APPROVED DEPENDENCIES
+
+```
+# Core
+selenium>=4.18.0          # Browser automation (primary)
+playwright>=1.42.0         # Browser automation (alternative)
+pydantic>=2.0.0            # Config + data models
+loguru>=0.7.0              # Logging
+
+# Anti-bot
+pyautogui>=0.9.54          # Human simulation
+undetected-chromedriver>=3.5.0  # Stealth browser
+
+# Utilities
+aiofiles>=23.0.0           # Async file operations
+rich>=13.0.0               # Beautiful terminal output
+click>=8.1.0               # CLI interface
+python-dotenv>=1.0.0       # Environment variables
+```
+
+**Do NOT add new dependencies without updating `requirements.txt` AND adding justification in PR.**
+
+---
+
+## 🧪 TESTING REQUIREMENTS
+
+- Every new function in `core/` MUST have a corresponding test in `tests/`
+- Use `pytest` with `pytest-asyncio` for async tests
+- Mock browser interactions — NEVER make real network calls in tests
+- Minimum coverage target: **80%** for `core/` files
+
+---
+
+## 📐 DATA MODELS (Single Source of Truth)
+
+All data structures live in `models/`. When in doubt:
+
+```python
+# models/code_block.py
+from pydantic import BaseModel, Field
+from pathlib import Path
+
+class CodeBlock(BaseModel):
+    """Raw extracted code from chatbot DOM."""
+    raw_text: str
+    source_url: str
+    detected_at: float  # Unix timestamp
+    content_hash: str   # SHA256 for deduplication
+
+class ParsedCode(BaseModel):
+    """Code after Parser layer processing."""
+    code: str
+    file_path: Path
+    language: str
+    terminal_commands: list[str] = Field(default_factory=list)
+    requires_backup: bool = True
+```
+
+---
+
+## 💬 CODE COMMENTS LANGUAGE
+
+- **Docstrings:** English (for IDE tooling compatibility)
+- **Inline comments:** English preferred, Arabic acceptable for complex business logic
+- **Log messages:** English only (for log parsing tools)
+
+---
+
+## ⚡ QUICK REFERENCE CHECKLIST
+
+Before submitting ANY code, verify:
+- [ ] Type hints on all parameters and return values
+- [ ] No `print()` — using `logger` instead
+- [ ] No hardcoded strings — all from config
+- [ ] Atomic file writes
+- [ ] Random delays on all browser interactions
+- [ ] Specific exception catching (no bare `except:`)
+- [ ] Test exists for this function
+- [ ] `pathlib.Path` instead of string path manipulation

@@ -1,0 +1,18 @@
+{
+  "name": "QudBridges — AI Automation & Protocol Bridge",
+  "slug": "qud-bridges",
+  "vendor": "QudSystem",
+  "suite": "QudSystem Integrated Software Suite",
+  "category": "AI Agents & LLM Platforms",
+  "upcomingBundle": "Qud Office AI",
+  "upcomingBadgeAr": "قريباً / قادم: حزمة Qud Office AI",
+  "adSlot": {
+    "enabledInFreeTier": true,
+    "adFreeInPaidTier": true,
+    "paidPlansStatus": "coming_soon",
+    "feedUrl": "https://cdn.jsdelivr.net/gh/Qudsystem/qudsystem-website@main/public/ads/qud-ad-slot.json",
+    "fallbackFeedUrl": "https://raw.githubusercontent.com/Qudsystem/qudsystem-website/main/public/ads/qud-ad-slot.json"
+  },
+  "repository": "https://github.com/Qudsystem/qud-bridges",
+  "updatedAt": "2026-11-11T19:09:07.805Z"
+}

@@ -1,0 +1,110 @@
+{
+  "_comment": "Bridge-to-IDE Master Config | QudSystem | v1.0.0",
+  "_note": "All paths support both Windows and Unix formats. Use forward slashes.",
+
+  "chatbot": {
+    "name": "deepseek",
+    "_supported": ["deepseek", "claude", "gemini"],
+    "url": "https://chat.deepseek.com",
+    "polling_interval_ms": 500,
+    "initial_load_wait_ms": 5000,
+    "max_scroll_depth": 10
+  },
+
+  "ide": {
+    "name": "cursor",
+    "_supported": ["cursor", "vscode"],
+    "project_root": "d:/Bridges",
+    "auto_open_files": true,
+    "open_delay_ms": 300
+  },
+
+  "browser": {
+    "driver": "chrome",
+    "_supported_drivers": ["chrome", "firefox"],
+    "headless": false,
+    "_note_headless": "Set true for background operation. May trigger bot detection on some platforms.",
+    "user_data_dir": "./.bridge_chrome_profile",
+    "_note_profile": "Reuse same profile to avoid repeated logins",
+    "window_size": [1280, 900]
+  },
+
+  "anti_bot": {
+    "enabled": true,
+    "min_delay_ms": 500,
+    "max_delay_ms": 3000,
+    "mouse_simulation": true,
+    "randomize_user_agent": false,
+    "_note_ua": "Set true only if you rotate profiles too — mismatched UA+fingerprint = detection",
+    "max_actions_per_minute": 20
+  },
+
+  "parser": {
+    "path_patterns": [
+      "// path: {path}",
+      "# path: {path}",
+      "/* path: {path} */",
+      "// File: {path}",
+      "# File: {path}"
+    ],
+    "terminal_command_patterns": [
+      "run: {command}",
+      "execute: {command}",
+      "$ {command}"
+    ],
+    "fallback_filename_prefix": "bridge_output",
+    "language_extension_map": {
+      "python": ".py",
+      "javascript": ".js",
+      "typescript": ".ts",
+      "html": ".html",
+      "css": ".css",
+      "json": ".json",
+      "bash": ".sh",
+      "rust": ".rs",
+      "go": ".go"
+    }
+  },
+
+  "executor": {
+    "dry_run": false,
+    "_note_dry_run": "Set true to preview all actions without making any changes",
+    "auto_backup": true,
+    "backup_dir": "./backups",
+    "backup_max_age_days": 30,
+    "auto_run_terminal_commands": true,
+    "terminal_command_timeout_s": 60,
+    "confirm_destructive_actions": true,
+    "_note_confirm": "Prompt before overwriting files larger than size_warn_threshold_kb"
+  },
+
+  "logging": {
+    "level": "INFO",
+    "_levels": ["DEBUG", "INFO", "WARNING", "ERROR"],
+    "log_dir": "./logs",
+    "rotation": "10 MB",
+    "retention": "7 days",
+    "colorized": true
+  },
+
+  "adapters": {
+    "deepseek": {
+      "code_block_selector": "div.ds-markdown pre code",
+      "copy_button_selector": "button.copy-btn",
+      "message_container_selector": ".chat-message-content",
+      "_verified_date": "2025-01-01"
+    },
+    "claude": {
+      "code_block_selector": "div.font-claude-message pre code",
+      "copy_button_selector": "button[aria-label='Copy code']",
+      "message_container_selector": ".font-claude-message",
+      "_verified_date": "2025-01-01"
+    },
+    "gemini": {
+      "code_block_selector": "code-block pre code",
+      "copy_button_selector": "button.copy-button",
+      "message_container_selector": ".response-content",
+      "_verified_date": "2025-01-01"
+    }
+  }
+}

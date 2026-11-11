@@ -1,0 +1,79 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chatbot-bridge"
+version = "0.1.0"
+description = "Transform free chatbots into fully-functional APIs with automated command execution"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Chatbot Bridge Team"}
+]
+keywords = ["chatbot", "automation", "bridge", "playwright", "deepseek", "chatgpt", "claude"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "playwright>=1.40.0",
+    "pyyaml>=6.0",
+    "aiohttp>=3.9.0",
+    "psutil>=5.9.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "hypothesis>=6.92.0",
+    "black>=23.0.0",
+    "flake8>=6.1.0",
+    "mypy>=1.7.0",
+]
+api = [
+    "fastapi>=0.104.0",
+    "uvicorn>=0.24.0",
+    "websockets>=12.0",
+]
+
+[project.scripts]
+chatbot-bridge = "chatbot_bridge.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/chatbot-bridge/chatbot-bridge"
+Documentation = "https://chatbot-bridge.readthedocs.io"
+Repository = "https://github.com/chatbot-bridge/chatbot-bridge"
+Issues = "https://github.com/chatbot-bridge/chatbot-bridge/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["chatbot_bridge*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311']
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true

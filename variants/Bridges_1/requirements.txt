@@ -1,0 +1,37 @@
+# Bridge-to-IDE — Python Dependencies
+# QudSystem | v1.0.0
+# Install: pip install -r requirements.txt
+
+# ── Core Browser Automation ──────────────────────────────────────
+selenium>=4.18.0                # Primary browser automation
+undetected-chromedriver>=3.5.5  # Stealth Chrome driver (anti-bot)
+playwright>=1.42.0              # Alternative automation engine
+
+# ── Data Models & Config ─────────────────────────────────────────
+pydantic>=2.6.0                 # Config validation + data models
+pydantic-settings>=2.2.0        # Load config from JSON + env vars
+python-dotenv>=1.0.1            # .env file support
+
+# ── Human Simulation (Anti-Bot) ──────────────────────────────────
+pyautogui>=0.9.54               # Mouse/keyboard simulation
+pynput>=1.7.6                   # Low-level input events
+
+# ── Async & Concurrency ──────────────────────────────────────────
+aiofiles>=23.2.1                # Async file I/O
+anyio>=4.3.0                    # Async utilities
+
+# ── Logging ──────────────────────────────────────────────────────
+loguru>=0.7.2                   # Structured logging with rotation
+
+# ── CLI Interface ────────────────────────────────────────────────
+click>=8.1.7                    # Command-line interface
+rich>=13.7.0                    # Beautiful terminal output
+
+# ── Utilities ────────────────────────────────────────────────────
+watchdog>=4.0.0                 # File system watching (for IDE sync)
+
+# ── Testing ──────────────────────────────────────────────────────
+pytest>=8.1.0
+pytest-asyncio>=0.23.0
+pytest-cov>=4.1.0
+pytest-mock>=3.12.0
